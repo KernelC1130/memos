@@ -26,9 +26,6 @@ jobs:
   upgrade-smoke:
     name: Verify fresh install and stable upgrade
     uses: ./.github/workflows/upgrade-smoke.yml
-    # Fork patch: this DB-container smoke test is flaky on fork runners and
-    # gates the whole binary build. Let it fail without blocking the release.
-    continue-on-error: true
 
   prepare:
     name: Extract Version
@@ -70,7 +67,9 @@ jobs:
 
   build-frontend:
     name: Build Frontend
-    needs: [prepare, upgrade-smoke]
+    # Fork patch: the upgrade-smoke DB-container test is flaky on fork
+    # runners; it still runs independently but no longer gates the build.
+    needs: [prepare]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
