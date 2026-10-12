@@ -29,7 +29,7 @@ export const getMemoKey = (memo: Memo) => memo.name;
 
 // Columns never stretch past this, so 2 columns on a wide monitor stay readable and the
 // grid centers in the leftover space instead of filling it.
-const MAX_COLUMN_WIDTH = 420;
+const MAX_COLUMN_WIDTH = 720;
 
 const Loader = () => (
   <div className="w-full flex flex-row justify-center items-center py-8">
