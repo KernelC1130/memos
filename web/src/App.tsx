@@ -48,6 +48,17 @@ const App = () => {
     }
   }, [instanceGeneralSetting.additionalScript]);
 
+  // Fork patch: mark the session as navigated once the first screen mounts, so
+  // the "/" → Explore redirect (router/index.tsx) only fires on fresh session
+  // entries, not on in-session navigation or reloads of the home page.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("memos-navigated", "1");
+    } catch {
+      // storage unavailable: the redirect simply fires on every "/" load
+    }
+  }, []);
+
   // Dynamic update metadata with customized profile
   useEffect(() => {
     if (!instanceGeneralSetting.customProfile) {

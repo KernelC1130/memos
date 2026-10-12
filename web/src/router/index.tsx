@@ -36,6 +36,13 @@ const HomeRoute = () => {
   if (!currentUser && !getCollectionCreator(location.search)) {
     return <Navigate to={{ pathname: ROUTES.EXPLORE, search: location.search, hash: location.hash }} replace />;
   }
+  // Fork patch: land on Explore for the first navigation of a session — the
+  // shared knowledge base is the default entry. Later in-session navigations
+  // to "/" render Home as usual; sessionStorage survives reloads in this tab
+  // and the flag is written once the first screen mounts (App.tsx).
+  if (!sessionStorage.getItem("memos-navigated")) {
+    return <Navigate to={{ pathname: ROUTES.EXPLORE, search: location.search, hash: location.hash }} replace />;
+  }
   return <Home />;
 };
 
