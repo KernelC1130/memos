@@ -44,6 +44,22 @@ const InsertMenu = (props: InsertMenuProps) => {
   const { fileInputRef, selectingFlag, handleFileInputChange, handleUploadClick } = useFileUpload((newFiles: LocalFile[]) => {
     if (getState().ui.isLoading.saving) return;
     newFiles.forEach((file) => dispatch(actions.addLocalFile(file)));
+    // Markdown files: inline their content into the memo body while the
+    // file itself still joins the attachment list (same as handleFiles).
+    newFiles
+      .filter((file) => /\.(md|markdown)$/i.test(file.file.name))
+      .forEach((file) => {
+        void file.file
+          .text()
+          .then((text) => {
+            if (!text.trim()) return;
+            const name = file.file.name.replace(/\.(md|markdown)$/i, "");
+            const block = `<!-- ${name} -->\n${text.trim()}`;
+            const current = getState().content;
+            dispatch(actions.setContent(current ? `${current}\n\n${block}` : block));
+          })
+          .catch(() => {});
+      });
   });
 
   const linkMemo = useLinkMemo({
