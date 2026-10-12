@@ -279,6 +279,22 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
   const handleFiles = useCallback(
     (files: File[], placement: { inline: false } | { inline: true; position?: number }) => {
       if (getState().ui.isLoading.saving) return;
+      // Markdown files: inline their content into the memo body while the
+      // file itself still joins the attachment list.
+      files
+        .filter((file) => /\.(md|markdown)$/i.test(file.name))
+        .forEach((file) => {
+          void file
+            .text()
+            .then((text) => {
+              if (!text.trim()) return;
+              const name = file.name.replace(/\.(md|markdown)$/i, "");
+              const block = `<!-- ${name} -->\n${text.trim()}`;
+              const current = getState().content;
+              dispatch(actions.setContent(current ? `${current}\n\n${block}` : block));
+            })
+            .catch(() => {});
+        });
       const localFiles = toLocalFiles(files, { createBlobUrl, saveMediaMetadata });
       const { inline, attachments } = placement.inline ? splitInlineLocalFiles(localFiles) : { inline: [], attachments: localFiles };
       attachments.forEach((file) => dispatch(actions.addLocalFile(file)));
